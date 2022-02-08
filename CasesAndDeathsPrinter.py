@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import scipy.stats as stats
 from IPython.display import display
 from tabulate import tabulate
 
@@ -74,13 +75,13 @@ def displayWorldSummary(dataset, population):
 
     world_daily_cases = world_daily_cases.set_index('date')
     plt.figure(figsize=(25, 15))
-    ax1 = plt.subplot(2,2,1)
+    plt.subplot(2,2,1)
     plotCasesByDate(world_daily_cases)
-    ax2 = plt.subplot(2,2,2)
+    plt.subplot(2,2,2)
     plotDeathsByDate(world_daily_cases)
-    ax3 = plt.subplot(2,2,3)
+    plt.subplot(2,2,3)
     plotNewCasesByDate(world_daily_cases)
-    ax4 = plt.subplot(2,2,4)
+    plt.subplot(2,2,4)
     plotNewDeathsByDate(world_daily_cases)
     plt.subplots_adjust(hspace=0.5)
     plt.show()
@@ -99,13 +100,30 @@ def displayRegionSummary(dataset, population, region):
 
     daily_cases = daily_cases.set_index('date')
     plt.figure(figsize=(25, 15))
-    ax1 = plt.subplot(2,2,1)
+    plt.subplot(2,2,1)
     plotCasesByDate(daily_cases)
-    ax2 = plt.subplot(2,2,2)
+    plt.subplot(2,2,2)
     plotDeathsByDate(daily_cases)
-    ax3 = plt.subplot(2,2,3)
+    plt.subplot(2,2,3)
     plotNewCasesByDate(daily_cases)
-    ax4 = plt.subplot(2,2,4)
+    plt.subplot(2,2,4)
     plotNewDeathsByDate(daily_cases)
     plt.subplots_adjust(hspace=0.5)
     plt.show()
+
+def plotAccelerationNormalDistribution(data, feature):
+    mu, sigma = stats.norm.fit(data)
+    x = np.linspace(mu - 5*sigma, mu + 5*sigma, len(data))
+    y = stats.norm.pdf(x, mu, sigma)
+    
+    plt.plot(x, y)
+    plt.xlabel(feature + ' Acceleration', fontsize=14)
+    plt.ylabel('Probability Density', fontsize=14)
+    plt.title(feature + r" Acceleration normal distribution ($\mu = " + str(round(mu, 4)) + "; \sigma = " + str(round(sigma, 4)) + ")$", fontsize=17)
+
+def plotAccelerationData(data, feature):
+    data.plot()
+    plt.xlabel('Date', fontsize=14)
+    plt.ylabel(feature + ' Acceleration', fontsize=14)
+    plt.title(feature + " daily acceleration", fontsize=17)
+    plt.tick_params(axis='x', rotation=90)
