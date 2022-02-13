@@ -3,51 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import scipy.stats as stats
-from IPython.display import display
 from tabulate import tabulate
 
 import Utils
 import CasesDeathsPreparator
 
-
-def plotCasesByDate(cases):
-    ax = cases['total_cases'].plot(label="Cases")
-
-    plt.xlabel('Date', fontsize=16)
-    plt.ylabel('Number of cases', fontsize=16)
-    plt.title("Number of cases in function of the date", fontsize=20)
-    plt.ticklabel_format(style='plain', axis='y')
-    plt.tick_params(axis='x', rotation=90)
-    ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
-
-def plotDeathsByDate(deaths):
-    ax = deaths['total_deaths'].plot(label="Deaths")
-
-    plt.xlabel('Date', fontsize=16)
-    plt.ylabel('Number of deaths', fontsize=16)
-    plt.title("Number of deaths in function of the date", fontsize=20)
-    plt.ticklabel_format(style='plain', axis='y')
-    plt.tick_params(axis='x', rotation=90)
-    ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
-
-def plotNewCasesByDate(new_cases):
-    ax = new_cases['new_cases'].plot(label="New Cases")
-
-    plt.xlabel('Date', fontsize=16)
-    plt.ylabel('Number of cases', fontsize=16)
-    plt.title("Number of new daily cases", fontsize=20)
-    plt.ticklabel_format(style='plain', axis='y')
-    plt.tick_params(axis='x', rotation=90)
-    ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
-
-def plotNewDeathsByDate(new_deaths):
-    ax = new_deaths['new_deaths'].plot(label="New Deaths")
-
-    plt.xlabel('Date', fontsize=16)
-    plt.ylabel('Number of deaths', fontsize=16)
-    plt.title("Number of new daily deaths", fontsize=20)
-    plt.ticklabel_format(style='plain', axis='y')
-    plt.tick_params(axis='x', rotation=90)
+def plotCasesDeathsTimeSeries(dataset, feature, ax):
+    dataset.plot(label=feature, ax=ax, rot=90)
+    ax.set_xlabel('Date', fontdict={'fontsize': 16})
+    ax.set_ylabel(feature, fontdict={'fontsize': 16})
+    ax.set_title("Time series of the " + feature, fontdict={'fontsize': 20})
     ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
 def displayCumulativeSummary(dataset, region):    
@@ -74,15 +39,12 @@ def displayWorldSummary(dataset, population):
     displayCumulativeSummary(world_cases, "World")
 
     world_daily_cases = world_daily_cases.set_index('date')
-    plt.figure(figsize=(25, 15))
-    plt.subplot(2,2,1)
-    plotCasesByDate(world_daily_cases)
-    plt.subplot(2,2,2)
-    plotDeathsByDate(world_daily_cases)
-    plt.subplot(2,2,3)
-    plotNewCasesByDate(world_daily_cases)
-    plt.subplot(2,2,4)
-    plotNewDeathsByDate(world_daily_cases)
+    
+    fig, axes = plt.subplots(2, 2, figsize=(25, 15))
+    plotCasesDeathsTimeSeries(world_daily_cases['total_cases'], "Cumulative Cases", axes[0, 0])
+    plotCasesDeathsTimeSeries(world_daily_cases['total_deaths'], "Deaths", axes[0, 1])
+    plotCasesDeathsTimeSeries(world_daily_cases['new_cases'], "New Cases", axes[1, 0])
+    plotCasesDeathsTimeSeries(world_daily_cases['new_deaths'], "New Deaths", axes[1, 1])
     plt.subplots_adjust(hspace=0.5)
     plt.show()
 
@@ -99,31 +61,27 @@ def displayRegionSummary(dataset, population, region):
     displayCumulativeSummary(region_cases, region)
 
     daily_cases = daily_cases.set_index('date')
-    plt.figure(figsize=(25, 15))
-    plt.subplot(2,2,1)
-    plotCasesByDate(daily_cases)
-    plt.subplot(2,2,2)
-    plotDeathsByDate(daily_cases)
-    plt.subplot(2,2,3)
-    plotNewCasesByDate(daily_cases)
-    plt.subplot(2,2,4)
-    plotNewDeathsByDate(daily_cases)
+    fig, axes = plt.subplots(2, 2, figsize=(25, 15))
+    plotCasesDeathsTimeSeries(daily_cases['total_cases'], "Cumulative Cases", axes[0, 0])
+    plotCasesDeathsTimeSeries(daily_cases['total_deaths'], "Deaths", axes[0, 1])
+    plotCasesDeathsTimeSeries(daily_cases['new_cases'], "New Cases", axes[1, 0])
+    plotCasesDeathsTimeSeries(daily_cases['new_deaths'], "New Deaths", axes[1, 1])
     plt.subplots_adjust(hspace=0.5)
     plt.show()
 
-def plotAccelerationNormalDistribution(data, feature):
-    mu, sigma = stats.norm.fit(data)
-    x = np.linspace(mu - 5*sigma, mu + 5*sigma, len(data))
+def plotAccelerationNormalDistribution(dataset, feature, ax):
+    mu, sigma = stats.norm.fit(dataset)
+    x = np.linspace(mu - 5*sigma, mu + 5*sigma, len(dataset))
     y = stats.norm.pdf(x, mu, sigma)
+    plot_title = feature + r" Acceleration normal distribution ($\mu = " + str(round(mu, 4)) + "; \sigma = " + str(round(sigma, 4)) + ")$"
     
-    plt.plot(x, y)
-    plt.xlabel(feature + ' Acceleration', fontsize=14)
-    plt.ylabel('Probability Density', fontsize=14)
-    plt.title(feature + r" Acceleration normal distribution ($\mu = " + str(round(mu, 4)) + "; \sigma = " + str(round(sigma, 4)) + ")$", fontsize=17)
+    ax.plot(x, y)
+    ax.set_xlabel(feature + ' Acceleration', fontdict={'fontsize': 14})
+    ax.set_ylabel('Probability Density', fontdict={'fontsize': 14})
+    ax.set_title(plot_title, fontdict={'fontsize': 17})
 
-def plotAccelerationData(data, feature):
-    data.plot()
-    plt.xlabel('Date', fontsize=14)
-    plt.ylabel(feature + ' Acceleration', fontsize=14)
-    plt.title(feature + " daily acceleration", fontsize=17)
-    plt.tick_params(axis='x', rotation=90)
+def plotAccelerationData(dataset, feature, ax):
+    dataset.plot(ax=ax, legend=False, rot=90)
+    ax.set_xlabel('Date', fontdict={'fontsize': 14})
+    ax.set_ylabel(feature + ' Acceleration', fontdict={'fontsize': 14})
+    ax.set_title(feature + " daily acceleration", fontdict={'fontsize': 17})

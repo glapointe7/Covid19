@@ -21,6 +21,7 @@ def downloadVaccinationsDataset(url):
     vaccination['people_fully_vaccinated'] = vaccination['people_fully_vaccinated'].astype(np.int64)
     vaccination['total_boosters'] = vaccination['total_boosters'].astype(np.int64)
     vaccination['daily_vaccinations'] = vaccination['daily_vaccinations'].astype(np.int64)
+    vaccination['daily_people_vaccinated'] = vaccination['daily_people_vaccinated'].astype(np.int64)
 
     return vaccination
 

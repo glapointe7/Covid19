@@ -2,23 +2,24 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 
-def plotDailyHospitalizations(daily_hospitalizations):
-    columns = daily_hospitalizations.columns.to_list()
+def plotDailyHospitalizations(dataset, ax):
+    columns = dataset.columns.to_list()
     columns = filter(lambda column: not column.endswith('million'), columns)
     for column in columns:
-        daily_hospitalizations[column].plot()
+        dataset[column].plot(legend=True, ax=ax, rot=90)
 
-    plt.xlabel('Date', fontsize=16)
-    plt.ylabel('Number of hospitalizations', fontsize=16)
-    plt.title("Number of daily people hospitalized", fontsize=20)
-    plt.ticklabel_format(style='plain', axis='y')
-    plt.tick_params(axis='x', rotation=90)
-    plt.legend()
+    ax.set_xlabel('Date', fontdict={'fontsize': 16})
+    ax.set_ylabel('Hospitalizations', fontdict={'fontsize': 16})
+    ax.set_title("Time series of the number of new hospitalizations", fontdict={'fontsize': 20})
 
-def plotHospitalizationsPerMillionBarChart(dataset):
-    ax = dataset.plot(kind='barh')
-    plt.xlabel('Hospitalizations per million', fontsize=16)
-    plt.title("Number of people hospitalized per million", fontsize=20)
+def plotHospitalizationsPerMillionBarChart(dataset, ax):
+    dataset.plot.barh()
+    ax.set_xlabel('Hospitalizations per million', fontdict={'fontsize': 16})
+    ax.set_title("Number of hospitalizations per million by type of hospitalization", fontdict={'fontsize': 20})
     
     for i, value in enumerate(dataset):
-        ax.text(value / 3, i, str(value), color='black', fontsize=14)
+        ax.text(x=value / 3, 
+                y=i, 
+                s=str(value), 
+                color='black', 
+                fontsize=14)

@@ -34,11 +34,13 @@ def createPropagationSimulation(initial_values, parameters):
                           'deaths': [initial_values['D0']]})
 
     for t in range(1, parameters['days']):
-        model = model.append({'date': model['date'][t-1] + pd.Timedelta(1, unit='D'),
+        model = model.append({'date': pd.to_datetime(model['date'][t-1]) + pd.Timedelta(1, unit='D'),
                               'cumulative_infected': C(t, parameters['population'], parameters['beta'], initial_values['C0']),
                               'recovered': R(t, parameters['population'], parameters['beta'], parameters['gamma'], initial_values['C0'], initial_values['R0']),
                               'deaths': D(t, parameters['population'], parameters['beta'], parameters['alpha'], initial_values['C0'], initial_values['D0'])}, ignore_index=True)
 
+    model['date'] = pd.to_datetime(model['date'], format='%Y-%m-%d')
+    model['date'] = model['date'].dt.strftime('%Y-%m-%d')
     model['cumulative_infected'] = model['cumulative_infected'].astype(np.int64)
     model['recovered'] = model['recovered'].astype(np.int64)
     model['deaths'] = model['deaths'].astype(np.int64)
@@ -50,7 +52,7 @@ def createPropagationSimulation(initial_values, parameters):
     return model
 
 def plotFeatureModel(model, feature, ax):
-    model.plot(ax=ax)
+    model.plot(ax=ax, rot=90)
     ax.set_title("Time series simulation of the " + feature + " people", fontdict={'fontsize':24})
     ax.set_xlabel('Date', fontdict={'fontsize':20})
     ax.set_ylabel(feature, fontdict={'fontsize':20})
