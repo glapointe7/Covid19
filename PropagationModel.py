@@ -30,23 +30,21 @@ def D(t, p, beta, alpha, C0, D0):
 def createPropagationSimulation(initial_values, parameters):
     model = pd.DataFrame({'date': [initial_values['date']],
                           'cumulative_infected': [initial_values['C0']],
-                          'recovered': [initial_values['R0']],
+                          #'recovered': [initial_values['R0']],
                           'deaths': [initial_values['D0']]})
 
     for t in range(1, parameters['days']):
         model = model.append({'date': pd.to_datetime(model['date'][t-1]) + pd.Timedelta(1, unit='D'),
                               'cumulative_infected': C(t, parameters['population'], parameters['beta'], initial_values['C0']),
-                              'recovered': R(t, parameters['population'], parameters['beta'], parameters['gamma'], initial_values['C0'], initial_values['R0']),
+                              #'recovered': R(t, parameters['population'], parameters['beta'], parameters['gamma'], initial_values['C0'], initial_values['R0']),
                               'deaths': D(t, parameters['population'], parameters['beta'], parameters['alpha'], initial_values['C0'], initial_values['D0'])}, ignore_index=True)
 
-    model['date'] = pd.to_datetime(model['date'], format='%Y-%m-%d')
-    model['date'] = model['date'].dt.strftime('%Y-%m-%d')
+    model['date'] = pd.to_datetime(model['date'], format='%Y-%m-%d').dt.strftime('%Y-%m-%d')
     model['cumulative_infected'] = model['cumulative_infected'].astype(np.int64)
-    model['recovered'] = model['recovered'].astype(np.int64)
     model['deaths'] = model['deaths'].astype(np.int64)
 
     model['susceptibles'] = parameters['population'] - model['cumulative_infected']
-    model['active_infected'] = model['cumulative_infected'] - model['recovered'] - model['deaths']
+    #model['active_infected'] = model['cumulative_infected'] - model['recovered'] - model['deaths']
     model = model.set_index('date')
 
     return model
@@ -60,10 +58,10 @@ def plotFeatureModel(model, feature, ax):
 
 def plotModelSimulation(model):
     fig, axes = plt.subplots(2, 2, figsize=(20, 10))
-    plotFeatureModel(model['active_infected'], "Active Infected", axes[0, 0])
-    plotFeatureModel(model['cumulative_infected'], "Cumulative Infected", axes[0, 1])
-    plotFeatureModel(model['recovered'], "Recovered", axes[1, 0])
-    plotFeatureModel(model['deaths'], "Dead", axes[1, 1])
+    #plotFeatureModel(model['active_infected'], "Active Infected", axes[0, 0])
+    plotFeatureModel(model['cumulative_infected'], "Cumulative Infected", axes[0, 0])
+    plotFeatureModel(model['susceptibles'], "Susceptibles", axes[0, 1])
+    plotFeatureModel(model['deaths'], "Dead", axes[1, 0])
     fig.tight_layout()
     plt.subplots_adjust(hspace=0.5)
     plt.show()
