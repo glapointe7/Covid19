@@ -62,6 +62,7 @@ def plotModelSimulation(model):
     plotFeatureModel(model['cumulative_infected'], "Cumulative Infected", axes[0, 0])
     plotFeatureModel(model['susceptibles'], "Susceptibles", axes[0, 1])
     plotFeatureModel(model['deaths'], "Dead", axes[1, 0])
+    axes[1, 1].axis('off')
     fig.tight_layout()
     plt.subplots_adjust(hspace=0.5)
     plt.show()
