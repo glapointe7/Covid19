@@ -3,16 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
-
-def getVaccinationsByRegion(dataset, region):
-    daily_vaccinations = dataset.loc[dataset['entity'] == region]
-    daily_vaccinations = daily_vaccinations.drop(['entity', 'iso_code'], axis=1)
-    daily_vaccinations.set_axis(labels=['date', 'total_vaccinations', 'people_1st_dose', 'people_2nd_dose', 'people_3rd_dose', 'daily_vaccinations', 
-                                       '%_total_vaccinations', '%_people_1st_dose', '%_people_2nd_dose', '%_people_3rd_dose', 'daily_people_1st_dose', '%_daily_people_1st_dose'], 
-                                    axis=1, 
-                                    inplace=True)
-    return daily_vaccinations
-
 def plotCumulativeVaccinations(dataset, ax):
     dataset.plot(label="Total Vaccinations", ax=ax, rot=90)
     ax.set_xlabel('Date', fontdict={'fontsize': 16})

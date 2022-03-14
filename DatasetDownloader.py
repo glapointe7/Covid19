@@ -1,6 +1,25 @@
 import pandas as pd
 import numpy as np
 
+def downloadCountriesDataset(url):
+    countries = pd.read_csv(url, 
+                            index_col=False, 
+                            header=0, 
+                            usecols=["alpha-3", "region"])
+    countries = countries.rename({'alpha-3': 'iso_code', 'region': 'continent'}, axis='columns')
+    
+    return countries
+
+def extractPovertyValueFromDataset(filename):
+    poverty = pd.read_csv(filename, 
+                          index_col=False, 
+                          header=0, 
+                          usecols=["SpatialDimValueCode", "IsLatestYear", "Value"])
+    poverty = poverty.loc[poverty["IsLatestYear"] == True]
+    poverty = poverty.drop(['IsLatestYear'], axis=1)
+    poverty = poverty.rename({'SpatialDimValueCode': 'iso_code', 'Value': 'poverty_%'}, axis='columns')
+    
+    return poverty
 
 def downloadPopulationDataset(url):
     population = pd.read_csv(url, usecols=['entity', 'iso_code', 'population'])
@@ -14,7 +33,7 @@ def downloadPopulationDataset(url):
 def downloadVaccinationsDataset(url):
     vaccination = pd.read_csv(url, dtype=str).fillna(0)
     vaccination = vaccination.rename({'location': 'entity'}, axis='columns')
-    vaccination.drop(['daily_vaccinations_raw', 'daily_vaccinations_per_million'], axis=1, inplace=True)
+    vaccination = vaccination.drop(['daily_vaccinations_raw', 'daily_vaccinations_per_million'], axis=1)
 
     vaccination['total_vaccinations'] = vaccination['total_vaccinations'].astype(np.int64)
     vaccination['people_vaccinated'] = vaccination['people_vaccinated'].astype(np.int64)

@@ -6,7 +6,7 @@ import scipy.stats as stats
 from tabulate import tabulate
 
 import Utils
-import CasesDeathsPreparator
+import DatasetPreparator
 
 def plotCasesDeathsTimeSeries(dataset, feature, ax):
     dataset.plot(label=feature, ax=ax, rot=90)
@@ -24,15 +24,15 @@ def displayCumulativeSummary(dataset, region):
     
 
 def displayWorldSummary(dataset, population):
-    world_daily_cases = CasesDeathsPreparator.prepareWorldDailyCasesAndDeathsDataset(dataset)
+    world_daily_cases = DatasetPreparator.prepareWorldDailyCasesAndDeathsDataset(dataset)
     world_population = population.loc[population['entity'] == "World", 'population'].iloc[0]
-
+    
     world_cases_dict = {'total_cases': [world_daily_cases['total_cases'].iloc[-1]],
                         'total_deaths': [world_daily_cases['total_deaths'].iloc[-1]],
                         'population': [world_population],
-                        'total_cases_population_%': [round(world_daily_cases['total_cases'].iloc[-1] / world_population * 100, 4)],
-                        'total_deaths_population_%': [round(world_daily_cases['total_deaths'].iloc[-1] / world_population * 100, 4)],
-                        'total_deaths_cases_%': [round(world_daily_cases['total_deaths'].iloc[-1] / world_daily_cases['total_cases'].iloc[-1] * 100, 4)],
+                        'total_cases_population_%': [round(world_daily_cases['total_cases'].iloc[-1] / world_population * 100, 2)],
+                        'total_deaths_population_%': [round(world_daily_cases['total_deaths'].iloc[-1] / world_population * 100, 2)],
+                        'total_deaths_cases_%': [round(world_daily_cases['total_deaths'].iloc[-1] / world_daily_cases['total_cases'].iloc[-1] * 100, 2)],
                         'new_cases': [world_daily_cases['new_cases'].iloc[-1]],
                         'new deaths': [world_daily_cases['new_deaths'].iloc[-1]]}
     world_cases = pd.DataFrame(data=world_cases_dict)
@@ -49,16 +49,16 @@ def displayWorldSummary(dataset, population):
     plt.show()
 
 def displayRegionSummary(dataset, population, region):
-    daily_cases = CasesDeathsPreparator.prepareRegionsDailyCasesAndDeathsDataset(dataset)
+    daily_cases = DatasetPreparator.prepareRegionsDailyCasesAndDeathsDataset(dataset)
     daily_cases = daily_cases.loc[daily_cases['entity'] == region]
     daily_cases['new_cases'] = daily_cases['total_cases'].diff().fillna(0).astype(np.int64)
     daily_cases['new_deaths'] = daily_cases['total_deaths'].diff().fillna(0).astype(np.int64)
 
-    region_cases = CasesDeathsPreparator.prepareTotalCasesAndDeathsByRegion(daily_cases, population)
+    region_cases = DatasetPreparator.prepareTotalCasesAndDeathsByRegion(daily_cases, population)
     region_cases = region_cases.drop('entity', axis=1)
     region_cases['new_cases'] = daily_cases['new_cases'].iloc[-1]
     region_cases['new_deaths'] = daily_cases['new_deaths'].iloc[-1]
-    displayCumulativeSummary(region_cases, region)
+    displayCumulativeSummary(region_cases.drop(['poverty_%', 'continent', 'iso_code'], axis=1), region)
 
     daily_cases = daily_cases.set_index('date')
     fig, axes = plt.subplots(2, 2, figsize=(25, 15))

@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 
-import CasesDeathsPreparator
 import CasesAndDeathsPrinter
 import VaccinationsPrinter
 import HospitalizationsPrinter
+import DatasetPreparator
 
 def plotVaccinationsByRegion(vaccination, region):
-    region_vaccination = VaccinationsPrinter.getVaccinationsByRegion(vaccination, region)
+    region_vaccination = DatasetPreparator.getVaccinationsByRegion(vaccination, region)
     region_vaccination = region_vaccination.set_index('date')
 
     fig, axes = plt.subplots(3, 2, figsize=(25, 20))
